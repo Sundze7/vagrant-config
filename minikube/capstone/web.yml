@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ws-web-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ws-web
+  template:
+    metadata:
+      labels:
+        app: ws-web
+    spec:
+      containers:
+        - name: ws-web
+          image: 828804287617.dkr.ecr.ca-central-1.amazonaws.com/ws-web:latest
+          ports:
+          - containerPort: 80
+          env:
+          - name: API_HOST
+            value: ws-api-service  # Name of the API service
+          - name: API_PORT
+            value: "8080"
+      imagePullSecrets:
+      - name: regcred
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ws-web-service
+spec:
+  selector:
+    app: ws-web
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+      nodePort: 30000
+  type: LoadBalancer
